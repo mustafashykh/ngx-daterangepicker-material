@@ -146,13 +146,16 @@ export class DaterangepickerDirective implements OnInit, OnChanges, DoCheck {
   @Input()
   timePickerSeconds = false;
 
+  @Input()
+  initialDates: [string | dayjs.Dayjs, string | dayjs.Dayjs];
+
   @Input() closeOnAutoApply = true;
   @Input()
   private endKeyHolder: string;
 
   public picker: DaterangepickerComponent;
   private startKeyHolder: string;
-  private notForChangesProperty: Array<string> = ['locale', 'endKey', 'startKey'];
+  private notForChangesProperty: Array<string> = ['locale', 'endKey', 'startKey', 'initialDates'];
   private onChangeFn = Function.prototype;
   private onTouched = Function.prototype;
   private validatorChange = Function.prototype;
@@ -290,6 +293,9 @@ export class DaterangepickerDirective implements OnInit, OnChanges, DoCheck {
 
   // eslint-disable-next-line @angular-eslint/no-conflicting-lifecycle
   ngOnInit(): void {
+    if (this.initialDates) {
+      this.picker.initialDates = this.initialDates;
+    }
     this.picker.startDateChanged.asObservable().subscribe((itemChanged: StartDate) => {
       this.startDateChanged.emit(itemChanged);
     });

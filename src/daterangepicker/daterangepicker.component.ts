@@ -158,6 +158,9 @@ interface VisibleCalendar {
 })
 export class DaterangepickerComponent implements OnInit, OnChanges {
   @Input()
+  initialDates: [string | Dayjs, string | Dayjs] = null;
+
+  @Input()
   startDate = dayjs().utc(true).startOf('day');
 
   @Input()
@@ -405,9 +408,28 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
       }
     }
     this.locale.daysOfWeek = daysOfWeek;
+
+    // Initialize with initialDates if provided
+    let leftMonth: Dayjs;
+    let rightMonth: Dayjs;
+
+    if (this.initialDates && this.initialDates.length === 2) {
+      leftMonth = dayjs.isDayjs(this.initialDates[0]) ? this.initialDates[0].clone() : dayjs(this.initialDates[0]).utc(true);
+      rightMonth = dayjs.isDayjs(this.initialDates[1]) ? this.initialDates[1].clone() : dayjs(this.initialDates[1]).utc(true);
+    } else {
+      leftMonth = dayjs().utc(true);
+      rightMonth = leftMonth.clone().add(1, 'month');
+    }
+
+    // Set calendar view without selecting dates
+    if (!this.startDate || this.startDate.isSame(dayjs().utc(true).startOf('day'))) {
+      this.leftCalendar.month = leftMonth.clone();
+      this.rightCalendar.month = rightMonth.clone();
+    }
+
     if (this.inline) {
-      this.cachedVersion.start = this.startDate.clone();
-      this.cachedVersion.end = this.endDate.clone();
+      this.cachedVersion.start = this.startDate?.clone();
+      this.cachedVersion.end = this.endDate?.clone();
     }
 
     if (this.startDate && this.timePicker) {
@@ -844,7 +866,7 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
         return;
       }
       if (this.startDate) {
-        // we want to stay on whatever months are in view if date range is set and both calendar sides have a month already.  e.g. when 
+        // we want to stay on whatever months are in view if date range is set and both calendar sides have a month already.  e.g. when
         // user clicks on the end date, we want to stay on current month in view
         if (this.leftCalendar.month && this.rightCalendar.month) {
           return;
@@ -1438,7 +1460,7 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
       const minute = parseInt(String(this.timepickerVariables[side].selectedMinute), 10);
       const second = this.timePickerSeconds ? parseInt(String(this.timepickerVariables[side].selectedSecond), 10) : 0;
       return date.clone().hour(hour).minute(minute).second(second);
-
+      
     }else{
       return;
     }
